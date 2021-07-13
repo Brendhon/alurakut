@@ -23,7 +23,7 @@ As seguintes tecnologias foram utilizadas na construção do projeto:
 - **[ESLint](https://eslint.org/)**
 - **[Next.js](https://nextjs.org/)**
 - **[Styled Components](https://styled-components.com/)**
-> Veja o arquivo **[package.json](https://github.com/Brendhon/dark-quiz/blob/main/package.json)**
+> Veja o arquivo **[package.json](https://github.com/Brendhon/alurakut/blob/main/package.json)**
 
 ### Utilitários
 - Editor: **[Visual Studio Code](https://code.visualstudio.com/)**
