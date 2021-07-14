@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import Box from '../Box';
 
@@ -51,4 +52,63 @@ const ProfileRelationsBoxWrapper = styled(Box)`
   }
 `;
 
-export default ProfileRelationsBoxWrapper;
+function ProfileRelationsItem(props) {
+  // Desestruturando a propriedade
+  const {
+    link,
+    name,
+    image,
+  } = props;
+
+  // Retornando JSX
+  return (
+    <li>
+      <a href={`${link}${name}`}>
+        <img alt={name} src={image} />
+        <span>{name}</span>
+      </a>
+    </li>
+  );
+}
+
+function ProfileRelationsBox(props) {
+  // Desestruturando a propriedade
+  const {
+    title,
+    items,
+    link,
+    attrName,
+    attrImage,
+    minLimit = 0,
+    maxLimit = 6,
+  } = props;
+
+  // Retornando JSX
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className="smallTitle">
+        {title}
+        {' '}
+        (
+        {items.length}
+        )
+      </h2>
+      <ul>
+        {items.map((item, index) => (
+          index >= minLimit && index < maxLimit
+            ? (
+              <ProfileRelationsItem
+                key={item.id}
+                link={link}
+                name={attrName ? item[attrName] : item}
+                image={attrImage ? item[attrImage] : item}
+              />
+            )
+            : null
+        ))}
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  );
+}
+
+export { ProfileRelationsBoxWrapper, ProfileRelationsBox };

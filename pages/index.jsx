@@ -3,36 +3,13 @@ import MainGrid from '../src/components/MainGrid';
 import Box from '../src/components/Box';
 import {
   AlurakutMenu,
-  AlurakutProfileSidebarMenuDefault,
   OrkutNostalgicIconSet,
 } from '../src/lib/AlurakutCommons';
-import ProfileRelationsBoxWrapper from '../src/components/ProfileRelations';
-
-function ProfileSidebar(props) {
-  const { user } = props;
-  return (
-    <Box as="aside">
-      <img
-        alt="User"
-        src={`https://github.com/${user}.png`}
-        style={{ borderRadius: '8px' }}
-      />
-      <hr />
-
-      <p>
-        <a className="boxLink" href={`https://github.com/${user}`}>
-          @
-          {user}
-        </a>
-      </p>
-      <hr />
-
-      <AlurakutProfileSidebarMenuDefault />
-    </Box>
-  );
-}
+import { ProfileRelationsBox } from '../src/components/ProfileRelations';
+import ProfileSidebar from '../src/components/ProfileSidebar';
 
 export default function Home() {
+  const [followers, setFollowers] = React.useState([]);
   const githubUser = 'brendhon';
   const [comunidades, setComunidades] = React.useState([
     {
@@ -52,13 +29,20 @@ export default function Home() {
     },
   ]);
   const pessoasFavoritas = [
-    'ItaloRez',
-    'GabrielGSD',
-    'VanessaSwerts',
-    'itmoura',
-    'Leo18ss',
-    'alexanderaugusto',
+    { id: '438358u', name: 'ItaloRez', image: 'https://github.com/ItaloRez.png' },
+    { id: '324234', name: 'GabrielGSD', image: 'https://github.com/GabrielGSD.png' },
+    { id: '34521', name: 'VanessaSwerts', image: 'https://github.com/VanessaSwerts.png' },
+    { id: '435464', name: 'itmoura', image: 'https://github.com/itmoura.png' },
+    { id: '123134545', name: 'Leo18ss', image: 'https://github.com/Leo18ss.png' },
+    { id: '1312323', name: 'alexanderaugusto', image: 'https://github.com/alexanderaugusto.png' },
   ];
+
+  React.useEffect(() => {
+    // Buscando dados dos seguidores
+    fetch('https://api.github.com/users/brendhon/followers')
+      .then((resp) => resp.json())
+      .then((resp) => setFollowers(resp));
+  }, []);
 
   return (
     <>
@@ -106,6 +90,7 @@ export default function Home() {
                   placeholder="Coloque uma URL para usarmos de capa"
                   name="image"
                   aria-label="Coloque uma URL para usarmos de capa"
+                  type="text"
                 />
               </div>
 
@@ -118,42 +103,29 @@ export default function Home() {
         </div>
 
         <div className="profileRelationsArea">
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">
-              Comunidades (
-              {comunidades.length}
-              )
-            </h2>
-            <ul>
-              {comunidades.map((itemAtual) => (
-                <li key={itemAtual.id}>
-                  <a href={`/users/${itemAtual.title}`}>
-                    <img alt="Community" src={itemAtual.image} />
-                    <span>{itemAtual.title}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </ProfileRelationsBoxWrapper>
+          <ProfileRelationsBox
+            title="Seguidores"
+            items={followers}
+            attrName="login"
+            attrImage="avatar_url"
+            link="https://github.com/"
+          />
 
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">
-              Pessoas da comunidade (
-              {pessoasFavoritas.length}
-              )
-            </h2>
+          <ProfileRelationsBox
+            title="Comunidades"
+            items={comunidades}
+            attrName="title"
+            attrImage="image"
+            link="/users/"
+          />
 
-            <ul>
-              {pessoasFavoritas.map((person) => (
-                <li key={person}>
-                  <a href={`/users/${person}`}>
-                    <img alt={`Usuário ${person}`} src={`https://github.com/${person}.png`} />
-                    <span>{person}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </ProfileRelationsBoxWrapper>
+          <ProfileRelationsBox
+            title="Pessoas da comunidade"
+            items={pessoasFavoritas}
+            attrName="name"
+            attrImage="image"
+            link="/users/"
+          />
         </div>
       </MainGrid>
     </>
