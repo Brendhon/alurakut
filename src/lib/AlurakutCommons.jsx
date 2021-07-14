@@ -51,7 +51,7 @@ export function AlurakutMenu({ githubUser }) {
 }
 AlurakutMenu.Wrapper = styled.header`
   width: 100%;
-  background-color: #308BC5;
+  background-color: #000116;
   .alurakutMenuProfileSidebar {
     background: white;
     position: fixed;
@@ -90,7 +90,7 @@ AlurakutMenu.Wrapper = styled.header`
     }
   }
   .container {
-    background-color: #308BC5;
+    background-color: #000116;
     padding: 7px 16px;
     max-width: 1110px;
     margin: auto;
@@ -119,6 +119,7 @@ AlurakutMenu.Wrapper = styled.header`
         font-size: 12px;
         color: white;
         padding: 10px 16px;
+        margin-left: 5px;
         position: relative;
         text-decoration: none;
         &:after {
@@ -260,14 +261,15 @@ export function OrkutNostalgicIconSet(props) {
       ].map(({ name, slug, icon }) => {
         const total = props[slug] ? props[slug] : 3;
         return (
-          <li key={`orkut__icon_set__${slug}`}>
+          <li key={`orkut__icon_set__${slug}_`}>
             <span className="OrkutNostalgicIconSet__title">
               {name}
             </span>
             <span className="OrkutNostalgicIconSet__iconComplex OrkutNostalgicIconSet__number" style={{ gridArea: 'number' }}>
               {[0, 1, 2].map((_, index) => {
                 const isHeartActive = index <= (total - 1);
-                return <img alt="Icon orkut" key={`orkut__icon_set__${slug}_img`} src={`https://alurakut.vercel.app/icons/${icon}.svg`} style={{ marginRight: '2px', opacity: isHeartActive ? 1 : '0.5' }} />;
+                const aux = index - 1;
+                return <img alt="Icon orkut" key={`orkut__icon_set__${slug}_img_${aux}`} src={`https://alurakut.vercel.app/icons/${icon}.svg`} style={{ marginRight: '2px', opacity: isHeartActive ? 1 : '0.5' }} />;
               })}
             </span>
           </li>
