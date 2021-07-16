@@ -7,28 +7,13 @@ import {
 } from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBox } from '../src/components/ProfileRelations';
 import ProfileSidebar from '../src/components/ProfileSidebar';
+import { shuffle } from '../src/utils/helpers.ts';
 
 export default function Home() {
   const [followers, setFollowers] = React.useState([]);
+  const [comunidades, setComunidades] = React.useState([]);
   const githubUser = 'brendhon';
-  const [comunidades, setComunidades] = React.useState([
-    {
-      id: '34895938045834058',
-      title: 'Eu odeio acordar cedo',
-      image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg',
-    },
-    {
-      id: '3489593803145834058',
-      title: 'Queria sorvete, mas era feijão',
-      image: 'http://2.bp.blogspot.com/-WDodYsXnKCI/UDU-qfKhhkI/AAAAAAAAFyw/1_hjppmxWx4/s320/2012-08-22+21.44.07.jpg',
-    },
-    {
-      id: '348959380314583a4058',
-      title: 'Amo paisagens',
-      image: 'https://picsum.photos/200/200',
-    },
-  ]);
-  const pessoasFavoritas = [
+  const favoritePeople = [
     { id: '438358u', name: 'ItaloRez', image: 'https://github.com/ItaloRez.png' },
     { id: '324234', name: 'GabrielGSD', image: 'https://github.com/GabrielGSD.png' },
     { id: '34521', name: 'VanessaSwerts', image: 'https://github.com/VanessaSwerts.png' },
@@ -38,11 +23,53 @@ export default function Home() {
   ];
 
   React.useEffect(() => {
+    const headersGet = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: '58c451b25de3368f69e83ebb20cd49',
+    };
+    const queryGet = '{ allCommunities { id title imageUrl creatorSlug } }';
+
     // Buscando dados dos seguidores
     fetch('https://api.github.com/users/brendhon/followers')
       .then((resp) => resp.json())
-      .then((resp) => setFollowers(resp));
+      .then((resp) => setFollowers(shuffle(resp)));
+
+    // API GraphQL - Buscando dados das comunidades
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: headersGet,
+      body: JSON.stringify({ query: queryGet }),
+    })
+      .then((resp) => resp.json())
+      .then((resp) => setComunidades(shuffle(resp.data.allCommunities)));
   }, []);
+
+  function handleCriaComunidade(e) {
+    e.preventDefault(); // Evitar o reload da página
+    const formData = new FormData(e.target); // Pegando os dados do formulário
+
+    // Criando objeto para salvar os dados do fomulário
+    const comunidade = {
+      title: formData.get('title'),
+      imageUrl: formData.get('imageUrl'),
+      creatorSlug: githubUser,
+    };
+
+    // Não salvar se os campos estiverem vazios
+    if (comunidade.imageUrl && comunidade.title) {
+      // Realizando a requisição no BFF criado para salvar os dados no DatoCMS
+      fetch('/api/communities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(comunidade),
+      })
+        .then(async (resp) => {
+          const result = await resp.json();
+          setComunidades([...comunidades, result.data]); // Setando os dados no estado
+        });
+    }
+  }
 
   return (
     <>
@@ -63,20 +90,7 @@ export default function Home() {
 
           <Box>
             <h2 className="subTitle">O que você deseja fazer?</h2>
-            <form onSubmit={function handleCriaComunidade(e) {
-              e.preventDefault();
-              const formData = new FormData(e.target);
-
-              const comunidade = {
-                id: new Date().toISOString(), // Criando array de forma aleatória
-                title: formData.get('title'),
-                image: formData.get('image'),
-              };
-              if (comunidade.image && comunidades.length < 6) {
-                setComunidades([...comunidades, comunidade]);
-              }
-            }}
-            >
+            <form onSubmit={(e) => handleCriaComunidade(e)}>
               <div>
                 <input
                   placeholder="Qual vai ser o nome da sua comunidade?"
@@ -88,7 +102,7 @@ export default function Home() {
               <div>
                 <input
                   placeholder="Coloque uma URL para usarmos de capa"
-                  name="image"
+                  name="imageUrl"
                   aria-label="Coloque uma URL para usarmos de capa"
                   type="text"
                 />
@@ -106,25 +120,28 @@ export default function Home() {
           <ProfileRelationsBox
             title="Seguidores"
             items={followers}
-            attrName="login"
-            attrImage="avatar_url"
             link="https://github.com/"
+            attrName="login"
+            attrLink="login"
+            attrImage="avatar_url"
           />
 
           <ProfileRelationsBox
             title="Comunidades"
             items={comunidades}
+            link="/communities/"
+            attrLink="id"
             attrName="title"
-            attrImage="image"
-            link="/users/"
+            attrImage="imageUrl"
           />
 
           <ProfileRelationsBox
             title="Pessoas da comunidade"
-            items={pessoasFavoritas}
+            items={favoritePeople}
+            link="/users/"
+            attrLink="name"
             attrName="name"
             attrImage="image"
-            link="/users/"
           />
         </div>
       </MainGrid>

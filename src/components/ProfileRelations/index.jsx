@@ -58,12 +58,13 @@ function ProfileRelationsItem(props) {
     link,
     name,
     image,
+    attrLink,
   } = props;
 
   // Retornando JSX
   return (
     <li>
-      <a href={`${link}${name}`}>
+      <a href={`${link}${attrLink}`}>
         <img alt={name} src={image} />
         <span>{name}</span>
       </a>
@@ -79,6 +80,7 @@ function ProfileRelationsBox(props) {
     link,
     attrName,
     attrImage,
+    attrLink,
     minLimit = 0,
     maxLimit = 6,
   } = props;
@@ -100,6 +102,7 @@ function ProfileRelationsBox(props) {
               <ProfileRelationsItem
                 key={item.id}
                 link={link}
+                attrLink={item[attrLink]}
                 name={attrName ? item[attrName] : item}
                 image={attrImage ? item[attrImage] : item}
               />
