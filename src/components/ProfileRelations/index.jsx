@@ -76,7 +76,7 @@ function ProfileRelationsBox(props) {
   // Desestruturando a propriedade
   const {
     title,
-    items,
+    items = [],
     link,
     attrName,
     attrImage,
@@ -86,7 +86,7 @@ function ProfileRelationsBox(props) {
   } = props;
 
   // Retornando JSX
-  return (
+  return (items ? (
     <ProfileRelationsBoxWrapper>
       <h2 className="smallTitle">
         {title}
@@ -111,6 +111,8 @@ function ProfileRelationsBox(props) {
         ))}
       </ul>
     </ProfileRelationsBoxWrapper>
+  )
+    : <div />
   );
 }
 

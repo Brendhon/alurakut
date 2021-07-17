@@ -1,4 +1,4 @@
-export function shuffle(items) {
+const shuffle = (items) => {
   const array = items;
   let m = items.length;
   let t;
@@ -15,4 +15,6 @@ export function shuffle(items) {
   }
 
   return array;
-}
+};
+
+export default shuffle;

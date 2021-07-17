@@ -1,4 +1,6 @@
 import React from 'react';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 import MainGrid from '../src/components/MainGrid';
 import Box from '../src/components/Box';
 import {
@@ -7,20 +9,12 @@ import {
 } from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBox } from '../src/components/ProfileRelations';
 import ProfileSidebar from '../src/components/ProfileSidebar';
-import { shuffle } from '../src/utils/helpers.ts';
+import shuffle from '../src/utils/helpers';
 
-export default function Home() {
+export default function Home(props) {
   const [followers, setFollowers] = React.useState([]);
   const [comunidades, setComunidades] = React.useState([]);
-  const githubUser = 'brendhon';
-  const favoritePeople = [
-    { id: '438358u', name: 'ItaloRez', image: 'https://github.com/ItaloRez.png' },
-    { id: '324234', name: 'GabrielGSD', image: 'https://github.com/GabrielGSD.png' },
-    { id: '34521', name: 'VanessaSwerts', image: 'https://github.com/VanessaSwerts.png' },
-    { id: '435464', name: 'itmoura', image: 'https://github.com/itmoura.png' },
-    { id: '123134545', name: 'Leo18ss', image: 'https://github.com/Leo18ss.png' },
-    { id: '1312323', name: 'alexanderaugusto', image: 'https://github.com/alexanderaugusto.png' },
-  ];
+  const { githubUser } = props;
 
   React.useEffect(() => {
     const headersGet = {
@@ -31,7 +25,7 @@ export default function Home() {
     const queryGet = '{ allCommunities { id title imageUrl creatorSlug } }';
 
     // Buscando dados dos seguidores
-    fetch('https://api.github.com/users/brendhon/followers')
+    fetch(`https://api.github.com/users/${githubUser}/followers`)
       .then((resp) => resp.json())
       .then((resp) => setFollowers(shuffle(resp)));
 
@@ -70,7 +64,6 @@ export default function Home() {
         });
     }
   }
-
   return (
     <>
       <AlurakutMenu githubUser={githubUser} />
@@ -137,14 +130,37 @@ export default function Home() {
 
           <ProfileRelationsBox
             title="Pessoas da comunidade"
-            items={favoritePeople}
-            link="/users/"
-            attrLink="name"
-            attrName="name"
-            attrImage="image"
+            items={followers.filter((value, index) => index > 6)}
+            link="https://github.com/"
+            attrLink="login"
+            attrName="login"
+            attrImage="avatar_url"
           />
         </div>
       </MainGrid>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context); // Pegando os cookies
+  const token = cookies.USER_TOKEN; // Pegando o token nos cookies
+
+  // Validando o Token na api
+  const { isAuthenticated } = await fetch('https://alurakut.vercel.app/api/auth',
+    { headers: { Authorization: token } })
+    .then((resp) => resp.json());
+
+  // Se não for válido envie o usuário para a página de login
+  if (!isAuthenticated) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  const { githubUser } = jwt.decode(token); // Pegando os dados do token autenticado
+  return { props: { githubUser } }; // Retornando as props para a página com o user
 }
